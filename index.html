@@ -1,0 +1,108 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Lorem ვეფხი by I.safareli</title>
+	<style>
+body{
+	background: #F6F6F6;
+}
+#shota{
+	color: #424242;
+	text-shadow: 0 1px #FFF;
+	height: 5.2em;
+	line-height: 1.3em;
+	width: 34em;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -16em;
+	margin-top: -2.6em;
+}
+	</style>
+</head>
+<body>
+<div id="shota"></div>
+<script src="words.js"></script>
+<script>
+
+String.prototype.vowelCount = function () {
+	return (m = this.match(/[აეიოუ]/g)) === null ? 0 : m.length;
+};
+
+function Generator (words) {
+	this.words = words;
+	this.wordsRandomK = words.length -1;
+    this.vowelsPerLine = 16;
+    this.vowelsShairPart = 8;
+    this.linesPerStrophe = 4;
+}	
+Generator.prototype.getRandomWord = function() {
+	return this.words[Math.floor(Math.random() * this.wordsRandomK)];
+};
+
+Generator.prototype.generateLine = function() {
+    return this.generateShairPart().concat(this.generateShairPart());
+};
+Generator.prototype.generateStrophe = function() {
+	var strophe = []
+	for (var i = 0; i < this.linesPerStrophe; i++) {
+		strophe.push(this.generateLine());
+	};
+    return strophe;
+};
+Generator.prototype.generateStropheString = function() {
+	var strophe = this.generateStrophe();
+	var t = '';
+	function getWordGutter (previous) {
+		var r = Math.random() * 100;
+		if (previous.length == 3 && r > 95)
+			return "-";
+		else if(r > 90)
+			return ", ";
+		else if(r > 5)
+			return " ";
+		else
+			return "-"
+	}
+
+	function getLineGutter () {
+		var r = Math.random() * 100;
+		if(r >30)
+			return '<br>\n';
+		else 
+			return ',<br>\n'
+	}
+	for (var i = 0; i < strophe.length; i++) {
+		var l = strophe[i][0];
+		for (var j = 1; j < strophe[i].length; j++) {
+			l += getWordGutter(strophe[i][j-1])+strophe[i][j];
+		}
+		t += l + getLineGutter();
+	}
+
+	return t;
+};
+
+Generator.prototype.generateShairPart = function() {
+	var vowelN = 0 ;
+    var words = [];
+    var f = 0;
+    while(vowelN < this.vowelsShairPart){
+	    var rWord = this.getRandomWord(); 
+	    if (vowelN + rWord.vowelCount() <= this.vowelsShairPart ) {
+	        vowelN += rWord.vowelCount();
+	        words.push(rWord);
+	    }else if (++f % 11 == 10) {
+	    	vowelN -= words.pop().vowelCount();
+    	} 
+    	if (f > 100) {break;}
+    }
+    return words;
+}
+
+g = new Generator(_words);
+document.getElementById('shota').innerHTML = g.generateStropheString();
+</script>
+</body>
+</html>
+
